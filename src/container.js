@@ -3,6 +3,13 @@ import { AuthController } from "./controllers/auth.controller.js";
 import { AvatarController } from "./controllers/avatar.controller.js";
 import { UsersController } from "./controllers/users.controller.js";
 import { createAuthenticate } from "./middleware/authenticate.js";
+import {
+  apiRateLimit,
+  authRateLimit,
+  corsPolicy,
+  securityHeaders,
+  verifyOrigin,
+} from "./middleware/security.js";
 import { createImageUpload } from "./middleware/upload.js";
 import { RefreshTokensRepository } from "./repositories/refresh-tokens.repository.js";
 import { UsersRepository } from "./repositories/users.repository.js";
@@ -55,6 +62,8 @@ export function createContainer(overrides = {}) {
     { maxBytes: uploads.maxBytes },
   );
 
+  const security = { ...config.security, ...overrides.security };
+
   return {
     usersRepository,
     refreshTokensRepository,
@@ -73,5 +82,12 @@ export function createContainer(overrides = {}) {
       fieldName: "avatar",
       maxBytes: uploads.maxBytes,
     }),
+    // ── 2.5 security middleware (created here so tests can use tiny limits) ──
+    security,
+    securityHeaders: securityHeaders(),
+    corsPolicy: corsPolicy(security.corsOrigins),
+    verifyOrigin: verifyOrigin(security.corsOrigins),
+    apiRateLimit: apiRateLimit(security.apiRateLimit),
+    authRateLimit: authRateLimit(security.authRateLimit),
   };
 }
