@@ -1,8 +1,9 @@
 node_modules/
 .env
 package-lock.json
-uploads/
+
 sita.txt
+.sita.txt
 admin.txt
+.env.example
 login.json
-fake.png
